@@ -4,51 +4,61 @@ class GildedRose
     @items = items
   end
 
-  def update_quality()
-    @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
+  def decrease_item_quality(item)
+    if item.quality > 0
+      item.quality = item.quality - 1
+      if item.sell_in < 0 
+        item.quality = item.quality - 1
+      end
+    end
+  end
+
+  def increase_item_quality(item)
+    if item.quality < 50
+      item.quality = item.quality + 1
+    end
+  end
+
+  def change_backstage_passes_quality(item)
+    increase_item_quality(item)
+    if item.sell_in < 11
+      increase_item_quality(item)
+    end
+    if item.sell_in < 6
+      increase_item_quality(item)
+    end
+    if item.sell_in < 0
+      item.quality = 0
+    end
+  end
+
+  def change_aged_brie_quality(item)
+    increase_item_quality(item)
+    if item.sell_in < 0
+      increase_item_quality(item)
+    end
+  end
+
+  def decrease_sell_in_days(item)
+    item.sell_in = item.sell_in - 1
+  end
+
+  def modify_item_quality(item)
+    case item.name
+      when "Backstage passes to a TAFKAL80ETC concert"
+        change_backstage_passes_quality(item)
+      when "Aged Brie"
+        change_aged_brie_quality(item)
       else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
-      end
+        decrease_item_quality(item)
+    end 
+  end
+  
+  def daily_item_update()
+    @items.each do |item|
+      return unless item.name != "Sulfuras, Hand of Ragnaros"
+      decrease_sell_in_days(item)
+      modify_item_quality(item)
     end
   end
 end
