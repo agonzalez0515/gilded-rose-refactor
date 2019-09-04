@@ -2,9 +2,7 @@ require "spec_helper"
 require "gilded_rose"
 
 describe GildedRose do
-
   describe "#update_quality" do
-
     it "degrades item quality" do
       items = [Item.new("Milk", 5, 50)]
       GildedRose.new(items).update_quality
@@ -23,10 +21,16 @@ describe GildedRose do
       expect(items[0].sell_in).to eq 4
     end
 
-    it "quality never becomes negative" do
+    it "minimum quality is 0" do
       items = [Item.new("Milk", 0, 0)]
       GildedRose.new(items).update_quality
       expect(items[0].quality).to eq 0
+    end
+
+    it "max quality is 50" do
+      items = [Item.new("Aged Brie", 30, 50)]
+      GildedRose.new(items).update_quality()
+      expect(items[0].quality).to eq 50
     end
 
     it "does not age Sulfuras" do
@@ -53,12 +57,6 @@ describe GildedRose do
       expect(items[0].quality).to eq 32
     end
     
-    it "max quality is 50" do
-      items = [Item.new("Aged Brie", 30, 50)]
-      GildedRose.new(items).update_quality()
-      expect(items[0].quality).to eq 50
-    end
-    
     it "increases quality for backstage passes by 1 for more than 10 days" do
       items = [Item.new("Backstage passes to a TAFKAL80ETC concert", 30, 30)]
       GildedRose.new(items).update_quality()
@@ -76,14 +74,17 @@ describe GildedRose do
       GildedRose.new(items).update_quality()
       expect(items[0].quality).to eq 33
     end
+
+    it "does not increase quality for backstage passes over 50" do
+      items = [Item.new("Backstage passes to a TAFKAL80ETC concert", 5, 49)]
+      GildedRose.new(items).update_quality()
+      expect(items[0].quality).to eq 50
+    end
     
     it "drops quality to 0 when days are 0 for backstage passes" do
       items = [Item.new("Backstage passes to a TAFKAL80ETC concert", 0, 30)]
       GildedRose.new(items).update_quality()
       expect(items[0].quality).to eq 0
     end
- 
   end
-
 end
-
