@@ -3,7 +3,7 @@ require "gilded_rose"
 
 describe GildedRose do
   describe "#daily_item_update" do
-    it "degrades xem quality" do
+    it "degrades item quality" do
       items = [Item.new("Milk", 5, 50)]
       GildedRose.new(items).daily_item_update
       expect(items[0].quality).to eq 49
