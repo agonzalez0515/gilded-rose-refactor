@@ -91,5 +91,11 @@ describe GildedRose do
       GildedRose.new(items).daily_item_update()
       expect(items[0].quality).to eq 0
     end
+
+    it "degrades Conjured items quality twice as fast" do 
+      items = [Item.new('Conjured', 20, 40)]
+      GildedRose.new(items).daily_item_update()
+      expect(items[0].quality).to eq(38)
+    end
   end
 end

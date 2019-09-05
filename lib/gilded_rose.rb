@@ -5,42 +5,35 @@ class GildedRose
   end
 
   def decrease_item_quality(item)
-    if item.quality > 0
-      item.quality = item.quality - 1
-      if item.sell_in < 0 
-        item.quality = item.quality - 1
-      end
-    end
+    return if item.quality == 0 
+    item.quality -= 1
+    item.quality -= 1 if item.sell_in <= 0
   end
 
   def increase_item_quality(item)
-    if item.quality < 50
-      item.quality = item.quality + 1
-    end
+    return if item.quality >= 50
+    item.quality += 1
   end
 
   def change_backstage_passes_quality(item)
     increase_item_quality(item)
-    if item.sell_in < 11
-      increase_item_quality(item)
-    end
-    if item.sell_in < 6
-      increase_item_quality(item)
-    end
-    if item.sell_in < 0
-      item.quality = 0
-    end
+    increase_item_quality(item) if item.sell_in < 11
+    increase_item_quality(item) if item.sell_in < 6
+    item.quality = 0            if item.sell_in <= 0
+  end
+
+  def change_conjured_quality(item)
+    decrease_item_quality(item)
+    decrease_item_quality(item)
   end
 
   def change_aged_brie_quality(item)
     increase_item_quality(item)
-    if item.sell_in < 0
-      increase_item_quality(item)
-    end
+    increase_item_quality(item) if item.sell_in <= 0
   end
 
   def decrease_sell_in_days(item)
-    item.sell_in = item.sell_in - 1
+    item.sell_in -= 1
   end
 
   def modify_item_quality(item)
@@ -49,6 +42,8 @@ class GildedRose
         change_backstage_passes_quality(item)
       when "Aged Brie"
         change_aged_brie_quality(item)
+      when "Conjured"
+        change_conjured_quality(item)
       else
         decrease_item_quality(item)
     end 
@@ -56,7 +51,7 @@ class GildedRose
   
   def daily_item_update()
     @items.each do |item|
-      return unless item.name != "Sulfuras, Hand of Ragnaros"
+      return if item.name == "Sulfuras, Hand of Ragnaros"
       decrease_sell_in_days(item)
       modify_item_quality(item)
     end
