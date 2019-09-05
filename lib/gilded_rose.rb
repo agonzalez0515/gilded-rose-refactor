@@ -5,10 +5,7 @@ class GildedRose
   end
 
   def regular_item(item)
-    item.sell_in -= 1
-    return if item.quality == 0 
-    item.quality -= 1
-    item.quality -= 1 if item.sell_in <= 0
+    item.update
   end
 
   def backstage_passes(item)
@@ -55,6 +52,15 @@ class Item
 
   def to_s()
     "#{@name}, #{@sell_in}, #{@quality}"
+  end
+end
+
+class RegularItem < Item
+  def update
+    @sell_in -= 1
+    return if @quality == 0 
+    @quality -= 1
+    @quality -= 1 if @sell_in <= 0
   end
 end
 
