@@ -4,55 +4,41 @@ class GildedRose
     @items = items
   end
 
-  def decrease_item_quality(item)
+  def regular_item(item)
+    item.sell_in -= 1
     return if item.quality == 0 
     item.quality -= 1
     item.quality -= 1 if item.sell_in <= 0
   end
 
-  def increase_item_quality(item)
-    return if item.quality >= 50
-    item.quality += 1
+  def backstage_passes(item)
+    item.update
   end
 
-  def change_backstage_passes_quality(item)
-    increase_item_quality(item)
-    increase_item_quality(item) if item.sell_in < 11
-    increase_item_quality(item) if item.sell_in < 6
-    item.quality = 0            if item.sell_in <= 0
+  def conjured(item)
+    item.update
   end
 
-  def change_conjured_quality(item)
-    decrease_item_quality(item)
-    decrease_item_quality(item)
-  end
-
-  def change_aged_brie_quality(item)
-    increase_item_quality(item)
-    increase_item_quality(item) if item.sell_in <= 0
-  end
-
-  def decrease_sell_in_days(item)
-    item.sell_in -= 1
+  def aged_brie(item)
+    item.update
   end
 
   def modify_item_quality(item)
     case item.name
       when "Backstage passes to a TAFKAL80ETC concert"
-        change_backstage_passes_quality(item)
+        backstage_passes(item)
       when "Aged Brie"
-        change_aged_brie_quality(item)
+        aged_brie(item)
       when "Conjured"
-        change_conjured_quality(item)
+        conjured(item)
       else
-        decrease_item_quality(item)
+        regular_item(item)
     end 
   end
   
   def daily_item_update()
     @items.each do |item|
       return if item.name == "Sulfuras, Hand of Ragnaros"
-      decrease_sell_in_days(item)
       modify_item_quality(item)
     end
   end
@@ -69,5 +55,38 @@ class Item
 
   def to_s()
     "#{@name}, #{@sell_in}, #{@quality}"
+  end
+end
+
+class AgedBrie < Item
+  def update 
+    @sell_in -= 1
+    return if @quality >= 50
+    @quality += 1
+    @quality += 1 if @sell_in <= 0
+  end
+end
+
+class BackstagePasses < Item
+  def update 
+    @sell_in -= 1
+    return if @quality >= 50
+    return @quality  = 0 if @sell_in <= 0
+
+    @quality += 1
+    return if @quality >= 50
+    
+    @quality += 1 if @sell_in < 11
+    return if @quality >= 50
+    
+    @quality += 1 if @sell_in < 6
+  end
+end
+
+class Conjured < Item
+  def update 
+    @sell_in -= 1
+    return if @quality <= 0
+    @quality -= 2
   end
 end
