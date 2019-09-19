@@ -1,42 +1,40 @@
+
 class GildedRose
+  BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert"
+  SULFURAS = "Sulfuras, Hand of Ragnaros"
+  AGED_BRIE = "Aged Brie"
+  CONJURED = "Conjured"
+
+  SPECIAL_ITEMS = {
+    BACKSTAGE_PASSES => :BackstagePasses,
+    AGED_BRIE => :AgedBrie,
+    CONJURED => :Conjured
+  }
 
   def initialize(items)
     @items = items
   end
 
-  def regular_item(item)
-    item.update
-  end
+  def convert_to_special_item(item)
+    special_item_ref = SPECIAL_ITEMS[item.name]
 
-  def backstage_passes(item)
-    item.update
-  end
-
-  def conjured(item)
-    item.update
-  end
-
-  def aged_brie(item)
-    item.update
-  end
-
-  def modify_item_quality(item)
-    case item.name
-      when "Backstage passes to a TAFKAL80ETC concert"
-        backstage_passes(item)
-      when "Aged Brie"
-        aged_brie(item)
-      when "Conjured"
-        conjured(item)
+      if special_item_ref
+        item_for_sale = Item.const_get(special_item_ref)
+        item_for_sale.new(item.name, item.sell_in, item.quality)
       else
-        regular_item(item)
-    end 
+        RegularItem.new(item.name, item.sell_in, item.quality)
+      end
   end
   
-  def daily_item_update()
+  def update_item_daily
     @items.each do |item|
-      return if item.name == "Sulfuras, Hand of Ragnaros"
-      modify_item_quality(item)
+      return if item.name == SULFURAS
+
+      special_item = convert_to_special_item(item)
+      special_item.update
+
+      item.quality = special_item.quality
+      item.sell_in = special_item.sell_in
     end
   end
 end
@@ -52,6 +50,9 @@ class Item
 
   def to_s()
     "#{@name}, #{@sell_in}, #{@quality}"
+  end
+
+  def update
   end
 end
 
@@ -77,7 +78,7 @@ class BackstagePasses < Item
   def update 
     @sell_in -= 1
     return if @quality >= 50
-    return @quality  = 0 if @sell_in <= 0
+    return @quality = 0 if @sell_in <= 0
 
     @quality += 1
     return if @quality >= 50
